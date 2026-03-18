@@ -1,0 +1,35 @@
+workflows:
+  flutter-app-workflow:
+    name: Flutter App Workflow
+    max_build_duration: 60
+    instance_type: mac_mini_m1 # O mac_mini_intel si prefieres
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+    scripts:
+      - name: Get dependencies
+        script: flutter packages pub get
+      - name: Static analysis
+        script: flutter analyze
+      - name: Run tests
+        script: flutter test
+      - name: Build Android APK
+        script: flutter build apk --release
+      - name: Build iOS
+        script: | 
+          # Para iOS necesitas configurar certificados en el panel de Codemagic
+          flutter build ios --release --no-codesign 
+    artifacts:
+      - build/**/outputs/apk/**/*.apk
+      - build/ios/ipa/*.ipa
+    publishing:
+      email:
+        recipients:
+          - tu-email@ejemplo.com
